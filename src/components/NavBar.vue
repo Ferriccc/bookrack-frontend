@@ -17,7 +17,7 @@ function handleGoogleSignIn() {
 async function handleLogout() {
   try {
     await apiClient.fetch(API_ENDPOINTS.AUTH.LOGOUT).then(() => {
-      window.location.reload()
+      // window.location.reload()
     })
   } catch (error) {
     console.log('Logout failed:', error)
