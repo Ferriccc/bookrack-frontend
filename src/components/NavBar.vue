@@ -23,7 +23,7 @@ async function handleLogout() {
         'Content-Type': 'application/json',
       },
     })
-    console.log(response)
+    console.log(response.text())
     // window.location.reload()
   } catch (error) {
     console.error('Logout failed:', error)
