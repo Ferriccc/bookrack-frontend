@@ -16,15 +16,7 @@ function handleGoogleSignIn() {
 
 async function handleLogout() {
   try {
-    const res = await fetch(API_ENDPOINTS.AUTH.LOGOUT)
-    if (res.ok) {
-      isSignedIn.value = false
-      userName.value = ''
-      // Optionally redirect to home page
-      if (route.path === '/mybooks' || route.path === '/wishlist') {
-        router.push('/')
-      }
-    }
+    await apiClient.fetch(API_ENDPOINTS.AUTH.LOGOUT)
   } catch (error) {
     console.error('Logout failed:', error)
   }
