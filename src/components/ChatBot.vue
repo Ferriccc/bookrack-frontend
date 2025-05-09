@@ -198,6 +198,8 @@ watch(isOpen, async (newValue) => {
   left: 0;
   right: 0;
   height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  padding-top: env(safe-area-inset-top); /* Add safe area padding for notches */
   background: #000000;
   display: flex;
   flex-direction: column;
@@ -208,13 +210,18 @@ watch(isOpen, async (newValue) => {
 }
 
 .chat-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  padding-top: max(1rem, env(safe-area-inset-top)); /* Use larger of default padding or safe area */
+  background: rgba(0, 0, 0, 0.95);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
+  backdrop-filter: blur(10px);
 }
 
 .header-content {
@@ -459,6 +466,7 @@ watch(isOpen, async (newValue) => {
     left: auto;
     width: 400px;
     height: 500px;
+    padding-top: 0; /* Remove safe area padding on desktop */
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
@@ -470,7 +478,9 @@ watch(isOpen, async (newValue) => {
   }
 
   .chat-header {
+    position: relative;
     padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
   }
 
   .chat-header h3 {
