@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { API_ENDPOINTS, apiClient } from '@/config/api'
+import { API_ENDPOINTS } from '@/config/api'
 
 const isSignedIn = ref(false)
 const userName = ref('')
@@ -32,38 +32,72 @@ async function handleLogout() {
     isSignedIn.value = false
     userName.value = ''
 
-    // Clear any local storage or other client-side state if needed
+    // Clear all storage
     localStorage.clear()
+    sessionStorage.clear()
+
+    // Clear all cookies
+    document.cookie.split(';').forEach((cookie) => {
+      const eqPos = cookie.indexOf('=')
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie
+      document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/'
+    })
+
+    // Small delay to ensure cookies are cleared before reload
+    await new Promise((resolve) => setTimeout(resolve, 100))
 
     // Force reload and redirect to home
-    window.location.href = '/'
+    window.location.replace('/')
   } catch (error) {
     console.error('Logout failed:', error)
     // Still clear local state even if server request fails
     isSignedIn.value = false
     userName.value = ''
-    window.location.href = '/'
+    localStorage.clear()
+    sessionStorage.clear()
+    window.location.replace('/')
   }
 }
 
 async function checkAuth() {
   isAuthLoading.value = true
   try {
-    const data = await apiClient.fetch(API_ENDPOINTS.AUTH.ME)
+    const response = await fetch(API_ENDPOINTS.AUTH.ME, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error('Not authenticated')
+    }
+
+    const data = await response.json()
     isSignedIn.value = true
     userName.value = data.name || 'User'
   } catch (error) {
     console.error('Auth check failed:', error)
     isSignedIn.value = false
     userName.value = ''
+    // Clear any stale state if auth check fails
+    localStorage.clear()
+    sessionStorage.clear()
   } finally {
     isAuthLoading.value = false
   }
 }
 
-// Check auth status on mount and when returning from OAuth redirect
+// Prevent auto-login after mount if logout was recent
 onMounted(() => {
-  checkAuth()
+  const lastLogoutTime = localStorage.getItem('lastLogoutTime')
+  const currentTime = new Date().getTime()
+
+  // Only check auth if no recent logout (within last 2 seconds)
+  if (!lastLogoutTime || currentTime - parseInt(lastLogoutTime) > 2000) {
+    checkAuth()
+  }
+
   // Check if we're returning from OAuth
   const urlParams = new URLSearchParams(window.location.search)
   if (urlParams.has('auth_success')) {
