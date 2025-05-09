@@ -16,10 +16,7 @@ function handleGoogleSignIn() {
 
 async function handleLogout() {
   try {
-    const res = await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
-      credentials: 'include',
-      method: 'POST', // Changed to POST as it modifies server state
-    })
+    const res = await fetch(API_ENDPOINTS.AUTH.LOGOUT)
     if (res.ok) {
       isSignedIn.value = false
       userName.value = ''
