@@ -16,15 +16,15 @@ function handleGoogleSignIn() {
 
 async function handleLogout() {
   try {
-    await fetch(API_ENDPOINTS.AUTH.LOGOUT)
+    await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   } catch (error) {
     console.error('Logout failed:', error)
-    // Still clear local state even if server request fails
-    isSignedIn.value = false
-    userName.value = ''
-    localStorage.clear()
-    sessionStorage.clear()
-    window.location.replace('/')
   }
 }
 
