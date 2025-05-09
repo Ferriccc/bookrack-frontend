@@ -16,38 +16,7 @@ function handleGoogleSignIn() {
 
 async function handleLogout() {
   try {
-    const response = await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`Logout failed with status: ${response.status}`)
-    }
-
-    // Clear local state
-    isSignedIn.value = false
-    userName.value = ''
-
-    // Clear all storage
-    localStorage.clear()
-    sessionStorage.clear()
-
-    // Clear all cookies
-    document.cookie.split(';').forEach((cookie) => {
-      const eqPos = cookie.indexOf('=')
-      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie
-      document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/'
-    })
-
-    // Small delay to ensure cookies are cleared before reload
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
-    // Force reload and redirect to home
-    window.location.replace('/')
+    await fetch(API_ENDPOINTS.AUTH.LOGOUT)
   } catch (error) {
     console.error('Logout failed:', error)
     // Still clear local state even if server request fails
