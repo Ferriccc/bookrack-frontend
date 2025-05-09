@@ -20,7 +20,8 @@
           <div class="book-meta">
             <span class="rating">
               <i class="bi bi-star-fill"></i>
-              {{ book.rating }}
+              {{ book.rating.toFixed(1) }}
+              <span class="review-count" v-if="book.review_count">({{ book.review_count }})</span>
             </span>
           </div>
           <div class="tags">
@@ -63,6 +64,7 @@ interface Book {
   author: string
   image_url: string
   rating: number
+  review_count?: number
   tags: string[]
   price: number
 }
@@ -167,10 +169,19 @@ async function toggleWishlist() {
   display: flex;
   align-items: center;
   gap: 0.3rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
 }
 
 .rating i {
   color: #ffd700;
+  font-size: 1rem;
+}
+
+.review-count {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  margin-left: 0.25rem;
 }
 
 .tags {

@@ -33,7 +33,6 @@ onMounted(async () => {
         const data = await apiClient.fetch(API_ENDPOINTS.FETCH_BOOK(id as string))
         book.value = data
       })(),
-      wishlistStore.updateStore(),
     ])
   } catch (err) {
     console.error('Failed to fetch book details:', err)

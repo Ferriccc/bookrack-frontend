@@ -7,6 +7,7 @@ interface Book {
   author: string
   image_url: string
   rating: number
+  review_count?: number
   tags: string[]
   price: number
 }

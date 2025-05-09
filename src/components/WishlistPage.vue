@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import BookGrid from '@/components/BookGrid.vue'
 import { API_ENDPOINTS, apiClient } from '@/config/api'
+import { useWishlistStore } from '@/stores/wishlistStore'
 
 interface Book {
   id: string
@@ -16,18 +17,19 @@ interface Book {
 const isLoading = ref(true)
 const wishlistBooks = ref<Book[]>([])
 const error = ref<string | null>(null)
+const wishlistStore = useWishlistStore()
 
 async function fetchWishlistBooks() {
   isLoading.value = true
   error.value = null
+  wishlistBooks.value = []
 
   try {
-    // Then fetch the full book details for each wishlisted book
-    const data = await apiClient.fetch(API_ENDPOINTS.FETCH_WISHLIST)
-    for (const book of data) {
-      const bookData = await apiClient.fetch(API_ENDPOINTS.FETCH_BOOK(book.book_id))
-      wishlistBooks.value.push(bookData)
-    }
+    const bookPromises = Array.from(wishlistStore.wishlistedBookIds).map((id) =>
+      apiClient.fetch(API_ENDPOINTS.FETCH_BOOK(id)),
+    )
+
+    wishlistBooks.value = await Promise.all(bookPromises)
   } catch (err) {
     console.error('Error fetching wishlist books:', err)
     error.value = 'Failed to load your wishlist. Please try again later.'

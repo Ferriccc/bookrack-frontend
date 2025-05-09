@@ -8,8 +8,13 @@
     <!-- Chat Interface -->
     <div class="chat-interface" v-show="isOpen">
       <div class="chat-header">
-        <h3>BookRack Assistant</h3>
-        <p class="subtitle">Ask me anything about books!</p>
+        <div class="header-content">
+          <h3>BookRack Assistant</h3>
+          <p class="subtitle">Ask me anything about books!</p>
+        </div>
+        <button class="close-btn" @click="toggleChat">
+          <i class="bi bi-x-lg"></i>
+        </button>
       </div>
 
       <div class="chat-messages" ref="messagesContainer">
@@ -149,10 +154,11 @@ watch(isOpen, async (newValue) => {
 </script>
 
 <style scoped>
+/* Mobile-first base styles */
 .chatbot-container {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  bottom: 1rem;
+  right: 1rem;
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -160,8 +166,8 @@ watch(isOpen, async (newValue) => {
 }
 
 .chat-toggle {
-  width: 3.5rem;
-  height: 3.5rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   background: #000000;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -171,7 +177,7 @@ watch(isOpen, async (newValue) => {
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -187,38 +193,63 @@ watch(isOpen, async (newValue) => {
 }
 
 .chat-interface {
-  position: absolute;
-  bottom: calc(100% + 1rem);
+  position: fixed;
+  bottom: 0;
+  left: 0;
   right: 0;
-  width: 420px;
-  height: 500px;
+  height: 100vh;
   background: #000000;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   backdrop-filter: blur(10px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
 }
 
 .chat-header {
-  padding: 1.5rem;
+  padding: 1rem;
   background: rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.header-content {
+  flex: 1;
 }
 
 .chat-header h3 {
   margin: 0;
   color: white;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
 }
 
 .chat-header .subtitle {
   margin: 0.25rem 0 0;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.5rem;
+  padding: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: white;
+  transform: scale(1.1);
 }
 
 .chat-messages {
@@ -232,12 +263,12 @@ watch(isOpen, async (newValue) => {
 }
 
 .message {
-  max-width: 85%;
-  padding: 0.75rem 1rem;
+  max-width: 90%;
+  padding: 0.75rem;
   border-radius: 12px;
   color: white;
   animation: fadeIn 0.3s ease;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .message.user {
@@ -258,13 +289,13 @@ watch(isOpen, async (newValue) => {
 }
 
 .message-content i {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.8);
   margin-top: 0.2rem;
 }
 
 .chat-input {
-  padding: 1rem;
+  padding: 0.75rem;
   background: rgba(255, 255, 255, 0.05);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
@@ -275,7 +306,7 @@ watch(isOpen, async (newValue) => {
   flex: 1;
   background: rgba(255, 255, 255, 0.1);
   border: none;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
   border-radius: 8px;
   color: white;
   font-size: 0.9rem;
@@ -292,7 +323,7 @@ watch(isOpen, async (newValue) => {
   color: white;
   cursor: pointer;
   padding: 0 0.5rem;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   opacity: 0.8;
   transition: all 0.2s ease;
 }
@@ -307,14 +338,15 @@ watch(isOpen, async (newValue) => {
   cursor: not-allowed;
 }
 
+/* Loading animation styles */
 .loading {
   display: flex;
   gap: 0.3rem;
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
   animation: bounce 1s infinite;
@@ -328,6 +360,7 @@ watch(isOpen, async (newValue) => {
   animation-delay: 0.4s;
 }
 
+/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -345,13 +378,13 @@ watch(isOpen, async (newValue) => {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
   }
 }
 
 /* Custom Scrollbar */
 .chat-messages::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .chat-messages::-webkit-scrollbar-track {
@@ -360,16 +393,17 @@ watch(isOpen, async (newValue) => {
 
 .chat-messages::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 
+/* Markdown content styles */
 .markdown-content {
   line-height: 1.5;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .markdown-content :deep(p) {
@@ -416,66 +450,62 @@ watch(isOpen, async (newValue) => {
   font-size: 0.85em;
 }
 
-.markdown-content :deep(blockquote) {
-  margin: 0.75em 0;
-  padding-left: 1em;
-  border-left: 3px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.8);
-}
+/* Tablet and desktop styles */
+@media (min-width: 768px) {
+  .chat-interface {
+    position: absolute;
+    bottom: calc(100% + 1rem);
+    right: 0;
+    left: auto;
+    width: 400px;
+    height: 500px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 
-.markdown-content :deep(a) {
-  color: #58a6ff;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
+  .chat-toggle {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.5rem;
+  }
 
-.markdown-content :deep(a:hover) {
-  color: #79b6ff;
-  text-decoration: underline;
-}
+  .chat-header {
+    padding: 1.5rem;
+  }
 
-.markdown-content :deep(table) {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 0.75em 0;
-}
+  .chat-header h3 {
+    font-size: 1.1rem;
+  }
 
-.markdown-content :deep(th),
-.markdown-content :deep(td) {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 0.5em;
-  text-align: left;
-}
+  .chat-header .subtitle {
+    font-size: 0.85rem;
+  }
 
-.markdown-content :deep(th) {
-  background: rgba(255, 255, 255, 0.05);
-}
+  .message {
+    max-width: 85%;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
 
-.markdown-content :deep(img) {
-  max-width: 100%;
-  border-radius: 8px;
-  margin: 0.75em 0;
-}
+  .chat-input {
+    padding: 1rem;
+  }
 
-.markdown-content :deep(hr) {
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin: 1em 0;
-}
+  .chat-input input {
+    padding: 0.75rem 1rem;
+  }
 
-/* Ensure inline elements maintain proper spacing */
-.markdown-content :deep(strong),
-.markdown-content :deep(em),
-.markdown-content :deep(code),
-.markdown-content :deep(a) {
-  margin: 0 0.1em;
-}
+  .chat-input button {
+    font-size: 1.2rem;
+  }
 
-.markdown-content :deep(strong) {
-  color: white;
-}
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
 
-.markdown-content :deep(em) {
-  color: rgba(255, 255, 255, 0.9);
+  .close-btn {
+    display: none; /* Hide close button on desktop since we have the toggle button */
+  }
 }
 </style>
