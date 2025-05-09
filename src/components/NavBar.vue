@@ -17,7 +17,7 @@ function handleGoogleSignIn() {
 async function handleLogout() {
   try {
     fetch(API_ENDPOINTS.AUTH.LOGOUT, {
-      method: 'GET',
+      method: 'POST',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
