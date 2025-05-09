@@ -16,13 +16,33 @@ function handleGoogleSignIn() {
 
 async function handleLogout() {
   try {
-    const response = await apiClient.fetch(API_ENDPOINTS.AUTH.LOGOUT)
-    console.log('Logout response:', response)
+    const response = await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Logout failed with status: ${response.status}`)
+    }
+
+    // Clear local state
     isSignedIn.value = false
     userName.value = ''
+
+    // Clear any local storage or other client-side state if needed
+    localStorage.clear()
+
+    // Force reload and redirect to home
     window.location.href = '/'
   } catch (error) {
     console.error('Logout failed:', error)
+    // Still clear local state even if server request fails
+    isSignedIn.value = false
+    userName.value = ''
+    window.location.href = '/'
   }
 }
 
