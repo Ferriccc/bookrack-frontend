@@ -61,19 +61,20 @@ async function checkAuth() {
 
 // Prevent auto-login after mount if logout was recent
 onMounted(() => {
-  const lastLogoutTime = localStorage.getItem('lastLogoutTime')
-  const currentTime = new Date().getTime()
+  checkAuth()
+  // const lastLogoutTime = localStorage.getItem('lastLogoutTime')
+  // const currentTime = new Date().getTime()
 
-  // Only check auth if no recent logout (within last 2 seconds)
-  if (!lastLogoutTime || currentTime - parseInt(lastLogoutTime) > 2000) {
-    checkAuth()
-  }
+  // // Only check auth if no recent logout (within last 2 seconds)
+  // if (!lastLogoutTime || currentTime - parseInt(lastLogoutTime) > 2000) {
+  //   checkAuth()
+  // }
 
-  // Check if we're returning from OAuth
-  const urlParams = new URLSearchParams(window.location.search)
-  if (urlParams.has('auth_success')) {
-    checkAuth()
-  }
+  // // Check if we're returning from OAuth
+  // const urlParams = new URLSearchParams(window.location.search)
+  // if (urlParams.has('auth_success')) {
+  //   checkAuth()
+  // }
 })
 
 // Compute which tab is active based on route
