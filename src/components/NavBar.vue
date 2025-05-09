@@ -23,7 +23,7 @@ async function handleLogout() {
         'Content-Type': 'application/json',
       },
     }).then(() => {
-      window.location.reload()
+      window.location.href = '/'
     })
   } catch (error) {
     console.error('Logout failed:', error)

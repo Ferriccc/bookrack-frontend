@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { API_ENDPOINTS, apiClient } from '@/config/api'
 import { useWishlistStore } from '@/stores/wishlistStore'
@@ -25,22 +25,34 @@ const isWishlisted = computed(
   () => book.value && wishlistStore.wishlistedBookIds.has(book.value.id),
 )
 
-onMounted(async () => {
-  const id = route.params.id
+async function fetchBookDetails(id: string) {
+  isLoading.value = true
+  error.value = null
   try {
-    await Promise.all([
-      (async () => {
-        const data = await apiClient.fetch(API_ENDPOINTS.FETCH_BOOK(id as string))
-        book.value = data
-      })(),
-    ])
+    const data = await apiClient.fetch(API_ENDPOINTS.FETCH_BOOK(id))
+    // Verify that the fetched book matches the requested ID
+    if (data.id !== id) {
+      throw new Error('Received incorrect book data')
+    }
+    book.value = data
   } catch (err) {
     console.error('Failed to fetch book details:', err)
     error.value = 'Failed to load book details. Please try again later.'
   } finally {
     isLoading.value = false
   }
-})
+}
+
+// Watch for route changes to update the book details
+watch(
+  () => route.params.id,
+  async (newId) => {
+    if (newId) {
+      await fetchBookDetails(newId as string)
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
