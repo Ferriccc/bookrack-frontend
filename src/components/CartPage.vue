@@ -89,17 +89,22 @@ onMounted(async () => {
       </div>
 
       <div v-if="error" class="error-message">
+        <i class="bi bi-exclamation-circle"></i>
         {{ error }}
       </div>
 
       <div v-else-if="!isLoading && cartBooks.length === 0" class="empty-state">
-        <i class="bi bi-cart text-muted"></i>
-        <h2>Your cart is empty</h2>
-        <p>Start adding books to your cart</p>
-        <router-link to="/search" class="explore-btn">
-          Explore Books
-          <i class="bi bi-arrow-right ms-2"></i>
-        </router-link>
+        <div class="empty-state-content">
+          <div class="empty-state-icon">
+            <i class="bi bi-cart"></i>
+          </div>
+          <h2>Your cart is empty</h2>
+          <p>Start adding books to your cart</p>
+          <router-link to="/search" class="explore-btn">
+            Explore Books
+            <i class="bi bi-arrow-right"></i>
+          </router-link>
+        </div>
       </div>
 
       <template v-else>
@@ -131,7 +136,7 @@ onMounted(async () => {
                 @click="handleCheckout"
                 :disabled="isLoading || cartBooks.length === 0"
               >
-                <i class="bi bi-credit-card me-2"></i>
+                <i class="bi bi-credit-card"></i>
                 Proceed to Checkout
               </button>
             </div>
@@ -146,13 +151,13 @@ onMounted(async () => {
 .cart-page {
   min-height: 100vh;
   background: rgb(18, 18, 18);
-  padding-top: 6rem;
+  padding: 6rem 1rem 3rem;
 }
 
 .cart-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0 1rem;
 }
 
 .cart-header {
@@ -163,6 +168,12 @@ onMounted(async () => {
 .cart-header h1 {
   color: #ffffff;
   margin-bottom: 1rem;
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #ffffff, rgba(255, 255, 255, 0.8));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .cart-subtitle {
@@ -171,8 +182,8 @@ onMounted(async () => {
 }
 
 .cart-content {
-  display: grid;
-  grid-template-columns: 1fr 350px;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
 }
 
@@ -195,8 +206,10 @@ onMounted(async () => {
 
 .cart-summary {
   position: sticky;
-  top: 6rem;
-  height: fit-content;
+  bottom: 0;
+  background: rgb(18, 18, 18);
+  padding: 1rem 0;
+  z-index: 10;
 }
 
 .summary-card {
@@ -204,6 +217,7 @@ onMounted(async () => {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 1.5rem;
+  backdrop-filter: blur(10px);
 }
 
 .summary-card h2 {
@@ -235,7 +249,7 @@ onMounted(async () => {
   color: #ffffff;
   border: none;
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 1.1rem;
   font-weight: 500;
   margin-top: 1.5rem;
@@ -244,6 +258,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.75rem;
 }
 
 .checkout-btn:hover:not(:disabled) {
@@ -257,64 +272,117 @@ onMounted(async () => {
 }
 
 .empty-state {
-  text-align: center;
-  padding: 4rem 1rem;
-  color: rgba(255, 255, 255, 0.7);
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
 }
 
-.empty-state i {
-  font-size: 3rem;
-  margin-bottom: 1.5rem;
+.empty-state-content {
+  text-align: center;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.empty-state-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+}
+
+.empty-state-icon i {
+  font-size: 2.5rem;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .empty-state h2 {
   color: #ffffff;
+  font-size: 1.8rem;
   margin-bottom: 1rem;
+  font-weight: 600;
 }
 
 .empty-state p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
   margin-bottom: 2rem;
 }
 
 .explore-btn {
   display: inline-flex;
   align-items: center;
+  gap: 0.75rem;
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
   text-decoration: none;
-  padding: 0.875rem 2rem;
-  border-radius: 8px;
+  padding: 1rem 2rem;
+  border-radius: 12px;
   transition: all 0.2s ease;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
 .explore-btn:hover {
   background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .error-message {
   text-align: center;
   color: #ff4081;
   background: rgba(255, 64, 129, 0.1);
-  padding: 1rem;
-  border-radius: 8px;
+  padding: 1.5rem;
+  border-radius: 12px;
   margin: 2rem auto;
   max-width: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
 }
 
-@media (max-width: 768px) {
+.error-message i {
+  font-size: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .cart-page {
+    padding: 6rem 2rem 3rem;
+  }
+
   .cart-container {
-    padding: 1rem;
+    padding: 0 2rem;
   }
 
   .cart-content {
-    grid-template-columns: 1fr;
+    flex-direction: row;
+    gap: 3rem;
   }
 
   .cart-summary {
-    position: static;
-    margin-top: 2rem;
+    position: sticky;
+    top: 6rem;
+    width: 350px;
+    height: fit-content;
+    background: transparent;
+    padding: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cart-page {
+    padding: 6rem 3rem 3rem;
+  }
+
+  .cart-container {
+    padding: 0 3rem;
   }
 }
 </style>

@@ -9,8 +9,8 @@
     <div class="chat-interface" v-show="isOpen">
       <div class="chat-header">
         <div class="header-content">
-          <h3>BookRack Assistant</h3>
-          <p class="subtitle">Ask me anything about books!</p>
+        <h3>BookRack Assistant</h3>
+        <p class="subtitle">Ask me anything about books!</p>
         </div>
         <button class="close-btn" @click="toggleChat">
           <i class="bi bi-x-lg"></i>
@@ -468,20 +468,20 @@ watch(isOpen, async (newValue) => {
     height: 500px;
     padding-top: 0; /* Remove safe area padding on desktop */
     border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .chat-toggle {
     width: 3.5rem;
     height: 3.5rem;
     font-size: 1.5rem;
-  }
+}
 
   .chat-header {
     position: relative;
     padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.05);
-  }
+  background: rgba(255, 255, 255, 0.05);
+}
 
   .chat-header h3 {
     font-size: 1.1rem;
@@ -495,11 +495,11 @@ watch(isOpen, async (newValue) => {
     max-width: 85%;
     padding: 0.75rem 1rem;
     font-size: 0.95rem;
-  }
+}
 
   .chat-input {
     padding: 1rem;
-  }
+}
 
   .chat-input input {
     padding: 0.75rem 1rem;
@@ -512,7 +512,7 @@ watch(isOpen, async (newValue) => {
   .dot {
     width: 8px;
     height: 8px;
-  }
+}
 
   .close-btn {
     display: none; /* Hide close button on desktop since we have the toggle button */
