@@ -3,6 +3,23 @@
     <router-link :to="`/book/${book.id}`" class="book-link">
       <div class="book-image">
         <img :src="book.image_url" :alt="book.title" loading="lazy" @error="handleImageError" />
+        <button
+          class="wishlist-btn"
+          :class="{ wishlisted: isWishlisted, loading: wishlistLoading }"
+          @click="toggleWishlist"
+          :disabled="wishlistLoading"
+          aria-label="Toggle Wishlist"
+        >
+          <transition name="heart" mode="out-in">
+            <i
+              v-if="!wishlistLoading"
+              class="bi"
+              :class="isWishlisted ? 'bi-heart-fill' : 'bi-heart'"
+              :key="isWishlisted ? 'filled' : 'empty'"
+            ></i>
+            <i v-else class="bi bi-arrow-repeat spinning" key="loading"></i>
+          </transition>
+        </button>
         <div class="book-overlay">
           <div class="overlay-content">
             <span class="view-details">View Details</span>
@@ -26,7 +43,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useWishlistStore } from '@/stores/wishlistStore'
 
 const props = defineProps<{
   book: {
@@ -40,9 +58,28 @@ const props = defineProps<{
   }
 }>()
 
+const wishlistStore = useWishlistStore()
+const wishlistLoading = ref(false)
+
+const isWishlisted = computed(() => wishlistStore.wishlistedBookIds.has(props.book.id))
+
+async function toggleWishlist(e: Event) {
+  e.preventDefault()
+  e.stopPropagation()
+  if (wishlistLoading.value) return
+  wishlistLoading.value = true
+  try {
+    await wishlistStore.toggleWishlist(props.book.id)
+  } catch (err) {
+    // Optionally show error
+  } finally {
+    wishlistLoading.value = false
+  }
+}
+
 const handleImageError = (e: Event) => {
-  const target = e.target as HTMLImageElement
-  target.src = '/placeholder-book.jpg'
+  // Optionally handle image error
+  // e.g. e.target.src = '/placeholder-book.jpg'
 }
 </script>
 
@@ -57,6 +94,9 @@ const handleImageError = (e: Event) => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  min-width: 220px;
+  max-width: 100%;
+  position: relative;
 }
 
 .book-card:hover {
@@ -87,6 +127,71 @@ const handleImageError = (e: Event) => {
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+  z-index: 2;
+}
+
+.wishlist-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.wishlist-btn.wishlisted {
+  color: #ff4081;
+  background: rgba(255, 64, 129, 0.2);
+}
+
+.wishlist-btn.wishlisted:hover {
+  background: rgba(255, 64, 129, 0.3);
+}
+
+.wishlist-btn.loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.heart-enter-active,
+.heart-leave-active {
+  transition: all 0.3s ease;
+}
+.heart-enter-from {
+  opacity: 0;
+  transform: scale(0.6) rotate(-45deg);
+}
+.heart-leave-to {
+  opacity: 0;
+  transform: scale(1.4) rotate(45deg);
+}
+.spinning {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .book-overlay {
@@ -145,6 +250,8 @@ const handleImageError = (e: Event) => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .book-author {
@@ -155,6 +262,8 @@ const handleImageError = (e: Event) => {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .book-meta {
@@ -185,6 +294,8 @@ const handleImageError = (e: Event) => {
   color: #ffffff;
   font-size: 1rem;
   font-weight: 600;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 768px) {

@@ -23,6 +23,7 @@ const isLoading = ref(true)
 const error = ref<string | null>(null)
 const wishlistStore = useWishlistStore()
 const cartStore = useCartStore()
+const isCartLoading = ref(false)
 
 const isWishlisted = computed(
   () => book.value && wishlistStore.wishlistedBookIds.has(book.value.id),
@@ -48,13 +49,16 @@ async function fetchBookDetails(id: string) {
 }
 
 async function handleCartToggle() {
-  if (!book.value) return
+  if (!book.value || isCartLoading.value) return
 
+  isCartLoading.value = true
   try {
     await cartStore.toggleCart(book.value.id)
   } catch (err) {
     console.error('Failed to update cart:', err)
     error.value = 'Failed to update cart. Please try again later.'
+  } finally {
+    isCartLoading.value = false
   }
 }
 
@@ -118,9 +122,25 @@ watch(
           </div>
 
           <div class="actions">
-            <button class="btn-primary" :class="{ 'in-cart': isInCart }" @click="handleCartToggle">
-              <i class="bi" :class="isInCart ? 'bi-cart-check' : 'bi-cart-plus'"></i>
-              {{ isInCart ? 'Remove from Cart' : 'Add to Cart' }}
+            <button
+              class="btn-primary"
+              :class="{
+                'in-cart': isInCart,
+                loading: isCartLoading,
+              }"
+              @click="handleCartToggle"
+              :disabled="isCartLoading"
+            >
+              <transition name="fade" mode="out-in">
+                <span v-if="isCartLoading" key="loading">
+                  <i class="bi bi-arrow-repeat spinning"></i>
+                  Updating...
+                </span>
+                <span v-else key="normal">
+                  <i class="bi" :class="isInCart ? 'bi-cart-check' : 'bi-cart-plus'"></i>
+                  {{ isInCart ? 'Remove from Cart' : 'Add to Cart' }}
+                </span>
+              </transition>
             </button>
             <button
               class="btn-secondary"
@@ -315,6 +335,20 @@ watch(
 .btn-primary {
   background: linear-gradient(90deg, #007aff, #339af0);
   color: #ffffff;
+  border: none;
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -328,6 +362,39 @@ watch(
 
 .btn-primary.in-cart:hover {
   box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-primary.loading {
+  cursor: wait;
+  opacity: 0.8;
+}
+
+.btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 .btn-secondary {

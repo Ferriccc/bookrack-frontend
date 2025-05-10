@@ -115,31 +115,29 @@ onMounted(async () => {
             </div>
             <BookGrid :books="cartBooks" :loading="isLoading" />
           </div>
-
-          <div class="cart-summary">
-            <div class="summary-card">
-              <h2>Order Summary</h2>
-              <div class="summary-row">
-                <span>Subtotal</span>
-                <span>₹{{ totalPrice.toFixed(2) }}</span>
-              </div>
-              <div class="summary-row">
-                <span>Shipping</span>
-                <span>Free</span>
-              </div>
-              <div class="summary-row total">
-                <span>Total</span>
-                <span>₹{{ totalPrice.toFixed(2) }}</span>
-              </div>
-              <button
-                class="checkout-btn"
-                @click="handleCheckout"
-                :disabled="isLoading || cartBooks.length === 0"
-              >
-                <i class="bi bi-credit-card"></i>
-                Proceed to Checkout
-              </button>
+        </div>
+        <div v-if="cartBooks.length > 0" class="cart-summary-bar">
+          <div class="summary-bar-content">
+            <div class="summary-bar-section">
+              <span class="summary-label">Subtotal</span>
+              <span class="summary-value">₹{{ totalPrice.toFixed(2) }}</span>
             </div>
+            <div class="summary-bar-section">
+              <span class="summary-label">Shipping</span>
+              <span class="summary-value">Free</span>
+            </div>
+            <div class="summary-bar-section total">
+              <span class="summary-label">Total</span>
+              <span class="summary-value">₹{{ totalPrice.toFixed(2) }}</span>
+            </div>
+            <button
+              class="checkout-btn"
+              @click="handleCheckout"
+              :disabled="isLoading || cartBooks.length === 0"
+            >
+              <i class="bi bi-credit-card"></i>
+              Proceed to Checkout
+            </button>
           </div>
         </div>
       </template>
@@ -188,7 +186,8 @@ onMounted(async () => {
 }
 
 .cart-books {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .cart-stats {
@@ -204,71 +203,77 @@ onMounted(async () => {
   font-size: 1.1rem;
 }
 
-.cart-summary {
-  position: sticky;
+.cart-summary-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
   bottom: 0;
-  background: rgb(18, 18, 18);
-  padding: 1rem 0;
-  z-index: 10;
-}
-
-.summary-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 1.5rem;
-  backdrop-filter: blur(10px);
-}
-
-.summary-card h2 {
-  color: #ffffff;
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-}
-
-.summary-row {
+  background: rgba(18, 18, 18, 0.98);
+  box-shadow: 0 -2px 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  padding: 1rem 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
-  justify-content: space-between;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
+  justify-content: center;
 }
 
-.summary-row.total {
-  color: #ffffff;
-  font-size: 1.3rem;
+.summary-bar-content {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  justify-content: space-between;
+}
+
+.summary-bar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 90px;
+}
+
+.summary-bar-section.total {
+  font-weight: 700;
+  color: #fff;
+}
+
+.summary-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+}
+
+.summary-value {
+  color: #fff;
+  font-size: 1.1rem;
   font-weight: 600;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .checkout-btn {
-  width: 100%;
   background: linear-gradient(90deg, #007aff, #339af0);
-  color: #ffffff;
+  color: #fff;
   border: none;
-  padding: 1rem;
+  padding: 0.9rem 2.2rem;
   border-radius: 12px;
   font-size: 1.1rem;
   font-weight: 500;
-  margin-top: 1.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.75rem;
-}
-
-.checkout-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+  margin-left: auto;
 }
 
 .checkout-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.checkout-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
 }
 
 .empty-state {
@@ -356,23 +361,11 @@ onMounted(async () => {
   .cart-page {
     padding: 6rem 2rem 3rem;
   }
-
   .cart-container {
     padding: 0 2rem;
   }
-
-  .cart-content {
-    flex-direction: row;
-    gap: 3rem;
-  }
-
-  .cart-summary {
-    position: sticky;
-    top: 6rem;
-    width: 350px;
-    height: fit-content;
-    background: transparent;
-    padding: 0;
+  .summary-bar-content {
+    gap: 2.5rem;
   }
 }
 
@@ -380,9 +373,11 @@ onMounted(async () => {
   .cart-page {
     padding: 6rem 3rem 3rem;
   }
-
   .cart-container {
     padding: 0 3rem;
+  }
+  .summary-bar-content {
+    max-width: 1000px;
   }
 }
 </style>
