@@ -1,9 +1,23 @@
 <script setup lang="ts">
+import { onMounted, computed } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import ChatBot from '@/components/ChatBot.vue'
+import SignInRequiredPopup from '@/components/SignInRequiredPopup.vue'
+import { useUserStore } from '@/stores/userStore'
+
+const userStore = useUserStore()
+const isSignedIn = computed(() => userStore.user !== null)
+
+onMounted(() => {
+  userStore.checkAuth()
+})
 </script>
 
 <template>
+  <div>
+    <SignInRequiredPopup v-if="!isSignedIn" />
+    <router-view v-else />
+  </div>
   <NavBar />
   <div class="app-content">
     <router-view />
