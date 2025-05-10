@@ -30,7 +30,6 @@ async function fetchBookDetails(id: string) {
   error.value = null
   try {
     const data = await apiClient.fetch(API_ENDPOINTS.FETCH_BOOK(id))
-    // Verify that the fetched book matches the requested ID
     if (data.id !== id) {
       throw new Error('Received incorrect book data')
     }
@@ -43,7 +42,6 @@ async function fetchBookDetails(id: string) {
   }
 }
 
-// Watch for route changes to update the book details
 watch(
   () => route.params.id,
   async (newId) => {
