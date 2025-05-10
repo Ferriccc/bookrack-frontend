@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
   FETCH_CART: `${API_CONFIG.BASE_URL}/api/fetch/cart`,
   ADD_TO_CART: (id: string | number) => `${API_CONFIG.BASE_URL}/api/add/cart/${id}`,
   REMOVE_FROM_CART: (id: string | number) => `${API_CONFIG.BASE_URL}/api/remove/cart/${id}`,
+  CHECKOUT: `${API_CONFIG.BASE_URL}/api/checkout`,
 
   FETCH_BOUGHT: `${API_CONFIG.BASE_URL}/api/fetch/bought`,
 

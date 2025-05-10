@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import BookGrid from '@/components/BookGrid.vue'
 import { API_ENDPOINTS, apiClient } from '@/config/api'
 import { useCartStore } from '@/stores/cartStore'
+import { useBoughtStore } from '@/stores/boughtStore'
 
 interface Book {
   id: string
@@ -18,6 +19,7 @@ const isLoading = ref(true)
 const cartBooks = ref<Book[]>([])
 const error = ref<string | null>(null)
 const cartStore = useCartStore()
+const boughtStore = useBoughtStore()
 
 const totalPrice = computed(() => {
   return cartBooks.value.reduce((total, book) => total + book.price, 0)
@@ -29,7 +31,7 @@ async function fetchCartBooks() {
   cartBooks.value = []
 
   try {
-    const bookPromises = Array.from(cartStore.cartBookIds).map((id) =>
+    const bookPromises = Array.from(cartStore.cartItems).map((id) =>
       apiClient.fetch(API_ENDPOINTS.FETCH_BOOK(id)),
     )
 
@@ -44,18 +46,37 @@ async function fetchCartBooks() {
 
 async function handleCheckout() {
   try {
-    // Move books from cart to bought
-    await cartStore.checkout()
-    // Refresh the cart
+    isLoading.value = true
+    error.value = null
+
+    // Call the checkout endpoint
+    const response = await fetch(API_ENDPOINTS.CHECKOUT, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error('Checkout failed')
+    }
+
+    // Refresh both stores
+    await Promise.all([cartStore.updateStore(), boughtStore.updateStore()])
+
+    // Refresh the cart view
     await fetchCartBooks()
   } catch (err) {
     console.error('Error during checkout:', err)
     error.value = 'Failed to complete checkout. Please try again later.'
+  } finally {
+    isLoading.value = false
   }
 }
 
-onMounted(() => {
-  fetchCartBooks()
+onMounted(async () => {
+  await fetchCartBooks()
 })
 </script>
 
