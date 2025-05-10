@@ -16,13 +16,12 @@ onMounted(() => {
 <template>
   <div>
     <SignInRequiredPopup v-if="!isSignedIn" />
-    <router-view v-else />
+    <NavBar />
+    <div class="app-content">
+      <router-view />
+    </div>
+    <ChatBot />
   </div>
-  <NavBar />
-  <div class="app-content">
-    <router-view />
-  </div>
-  <ChatBot />
 </template>
 
 <style>
