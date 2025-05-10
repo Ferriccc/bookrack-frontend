@@ -2,6 +2,8 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWishlistStore } from '@/stores/wishlistStore'
+import { useCartStore } from '@/stores/cartStore'
+import { useBoughtStore } from '@/stores/boughtStore'
 
 const router = useRouter()
 
@@ -12,6 +14,8 @@ const typingIndex = ref(0)
 let typingInterval: number | undefined
 
 const wishlistStore = useWishlistStore()
+const cartStore = useCartStore()
+const boughtStore = useBoughtStore()
 
 function typeTagline() {
   typingInterval = window.setInterval(() => {
@@ -31,6 +35,8 @@ function navigateToSearch() {
 onMounted(async () => {
   typeTagline()
   await wishlistStore.updateStore()
+  await cartStore.updateStore()
+  await boughtStore.updateStore()
 })
 
 onUnmounted(() => {

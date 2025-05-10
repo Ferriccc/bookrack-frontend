@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import BookGrid from '@/components/BookGrid.vue'
 import { API_ENDPOINTS, apiClient } from '@/config/api'
 import { useWishlistStore } from '@/stores/wishlistStore'
@@ -18,6 +18,24 @@ const isLoading = ref(true)
 const wishlistBooks = ref<Book[]>([])
 const error = ref<string | null>(null)
 const wishlistStore = useWishlistStore()
+const currentSort = ref<'title' | 'rating' | 'price'>('title')
+
+const sortedBooks = computed(() => {
+  if (!wishlistBooks.value.length) return []
+
+  return [...wishlistBooks.value].sort((a, b) => {
+    switch (currentSort.value) {
+      case 'title':
+        return a.title.localeCompare(b.title)
+      case 'rating':
+        return b.rating - a.rating
+      case 'price':
+        return a.price - b.price
+      default:
+        return 0
+    }
+  })
+})
 
 async function fetchWishlistBooks() {
   isLoading.value = true
@@ -69,13 +87,14 @@ onMounted(() => {
         <div class="wishlist-stats">
           <span class="book-count">{{ wishlistBooks.length }} books</span>
           <div class="sort-filter">
-            <button class="sort-btn">
-              <i class="bi bi-sort-alpha-down me-2"></i>
-              Sort by Title
-            </button>
+            <select v-model="currentSort" class="sort-select">
+              <option value="title">Sort by Title</option>
+              <option value="rating">Sort by Rating</option>
+              <option value="price">Sort by Price</option>
+            </select>
           </div>
         </div>
-        <BookGrid :books="wishlistBooks" :loading="isLoading" />
+        <BookGrid :books="sortedBooks" :loading="isLoading" />
       </template>
     </div>
   </div>
@@ -127,22 +146,36 @@ onMounted(() => {
   gap: 1rem;
 }
 
-.sort-btn {
+.sort-select {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.7);
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='rgba(255,255,255,0.7)' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 0.75rem) center;
 }
 
-.sort-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+.sort-select:hover {
+  background-color: rgba(255, 255, 255, 0.1);
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.sort-select option {
+  background: rgb(28, 28, 28);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .empty-state {

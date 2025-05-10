@@ -78,12 +78,7 @@ onMounted(() => {
 })
 
 // Compute which tab is active based on route
-const activeTab = computed(() => {
-  if (route.path === '/' || route.name === 'CoverPage') return 'home'
-  if (route.path.startsWith('/wishlist')) return 'wishlist'
-  if (route.path.startsWith('/mybooks')) return 'mybooks'
-  return ''
-})
+const activeTab = ref<'' | 'home' | 'wishlist' | 'mybooks' | 'cart'>('')
 
 // Optional: react to route changes if needed
 watch(route, () => {}, { immediate: true })
@@ -136,6 +131,15 @@ watch(route, () => {}, { immediate: true })
               href="#"
               @click.prevent="router.push('/mybooks')"
               >My Books</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link nav-accent"
+              :class="{ active: activeTab === 'cart' }"
+              href="#"
+              @click.prevent="router.push('/cart')"
+              >Cart</a
             >
           </li>
 
