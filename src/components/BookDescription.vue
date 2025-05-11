@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { API_ENDPOINTS, apiClient } from '@/config/api'
 import { useWishlistStore } from '@/stores/wishlistStore'
 import { useCartStore } from '@/stores/cartStore'
+import { useBoughtStore } from '@/stores/boughtStore'
 
 interface Book {
   id: string
@@ -23,13 +24,14 @@ const isLoading = ref(true)
 const error = ref<string | null>(null)
 const wishlistStore = useWishlistStore()
 const cartStore = useCartStore()
+const boughtStore = useBoughtStore()
 const isCartLoading = ref(false)
 
 const isWishlisted = computed(
   () => book.value && wishlistStore.wishlistedBookIds.has(book.value.id),
 )
-
 const isInCart = computed(() => book.value && cartStore.cartItems.has(book.value.id))
+const isBought = computed(() => book.value && boughtStore.boughtItems.has(book.value.id))
 
 async function fetchBookDetails(id: string) {
   isLoading.value = true
@@ -137,15 +139,22 @@ watch(
                   Updating...
                 </span>
                 <span v-else key="normal">
-                  <i class="bi" :class="isInCart ? 'bi-cart-check' : 'bi-cart-plus'"></i>
-                  {{ isInCart ? 'Remove from Cart' : 'Add to Cart' }}
+                  <template v-if="isBought">
+                    <i class="bi bi-bag-check"></i>
+                    Already Purchased
+                  </template>
+                  <template v-else>
+                    <i class="bi" :class="isInCart ? 'bi-cart-check' : 'bi-cart-plus'"></i>
+                    {{ isInCart ? 'Remove from Cart' : 'Add to Cart' }}
+                  </template>
                 </span>
               </transition>
             </button>
             <button
               class="btn-secondary"
               :class="{ wishlisted: isWishlisted }"
-              @click="() => book && wishlistStore.toggleWishlist(book.id)"
+              @click="() => !isBought && book && wishlistStore.toggleWishlist(book.id)"
+              :disabled="isBought"
             >
               <i class="bi" :class="isWishlisted ? 'bi-heart-fill' : 'bi-heart'"></i>
               {{ isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}

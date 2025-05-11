@@ -5,6 +5,17 @@ import { API_ENDPOINTS, apiClient } from '@/config/api'
 import { useCartStore } from '@/stores/cartStore'
 import { useBoughtStore } from '@/stores/boughtStore'
 
+// Add PayPal script loading
+const loadPayPalScript = () => {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script')
+    script.src = `https://www.paypal.com/sdk/js?client-id=${import.meta.env.VITE_PAYPAL_CLIENT_ID}&currency=USD`
+    script.addEventListener('load', () => resolve(true))
+    script.addEventListener('error', () => reject(new Error('PayPal SDK failed to load')))
+    document.body.appendChild(script)
+  })
+}
+
 interface Book {
   id: string
   title: string
@@ -20,6 +31,8 @@ const cartBooks = ref<Book[]>([])
 const error = ref<string | null>(null)
 const cartStore = useCartStore()
 const boughtStore = useBoughtStore()
+const orderId = ref<string | null>(null)
+const showPayPal = ref(false)
 
 const totalPrice = computed(() => {
   return cartBooks.value.reduce((total, book) => total + book.price, 0)
@@ -29,6 +42,7 @@ async function fetchCartBooks() {
   isLoading.value = true
   error.value = null
   cartBooks.value = []
+  cartStore.updateStore()
 
   try {
     const bookPromises = Array.from(cartStore.cartItems).map((id) =>
@@ -48,9 +62,13 @@ async function handleCheckout() {
   try {
     isLoading.value = true
     error.value = null
+    showPayPal.value = true
 
-    // Call the checkout endpoint
-    const response = await fetch(API_ENDPOINTS.CHECKOUT, {
+    // Load PayPal script if not already loaded
+    await loadPayPalScript()
+
+    // Initiate checkout
+    const response = await fetch(API_ENDPOINTS.INITIATE_CHECKOUT, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -59,20 +77,63 @@ async function handleCheckout() {
     })
 
     if (!response.ok) {
-      throw new Error('Checkout failed')
+      throw new Error('Failed to initiate checkout')
     }
 
-    // Refresh both stores
-    await Promise.all([cartStore.updateStore(), boughtStore.updateStore()])
+    const data = await response.json()
+    orderId.value = data.orderId
 
-    // Refresh the cart view
-    await fetchCartBooks()
+    // Initialize PayPal buttons
+    if (window.paypal) {
+      window.paypal
+        .Buttons({
+          createOrder: () => orderId.value,
+          onApprove: async () => {
+            try {
+              // Complete checkout
+              console.log(orderId.value || 'no order id')
+              const completeResponse = await fetch(
+                `${API_ENDPOINTS.COMPLETE_CHECKOUT}/${orderId.value}`,
+                {
+                  method: 'POST',
+                  credentials: 'include',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                },
+              )
+
+              if (!completeResponse.ok) {
+                throw new Error('Failed to complete checkout')
+              }
+
+              // Refresh stores and cart
+              await Promise.all([cartStore.updateStore(), boughtStore.updateStore()])
+              await fetchCartBooks()
+              showPayPal.value = false
+            } catch (err) {
+              console.error('Error completing checkout:', err)
+              error.value = 'Failed to complete checkout. Please try again later.'
+            }
+          },
+          onError: (err: any) => {
+            console.error('PayPal Error:', err)
+            error.value = 'Payment failed. Please try again.'
+          },
+          onCancel: () => {
+            showPayPal.value = false
+          },
+        })
+        .render('#paypal-button-container')
+    }
   } catch (err) {
     console.error('Error during checkout:', err)
-    error.value = 'Failed to complete checkout. Please try again later.'
+    error.value = 'Failed to initiate checkout. Please try again later.'
   } finally {
     isLoading.value = false
   }
+
+  window.location.reload()
 }
 
 onMounted(async () => {
@@ -138,6 +199,15 @@ onMounted(async () => {
               <i class="bi bi-credit-card"></i>
               Proceed to Checkout
             </button>
+          </div>
+        </div>
+
+        <!-- PayPal Modal -->
+        <div v-if="showPayPal" class="paypal-modal">
+          <div class="paypal-modal-content">
+            <button class="close-modal" @click="showPayPal = false">×</button>
+            <h3>Complete Payment</h3>
+            <div id="paypal-button-container"></div>
           </div>
         </div>
       </template>
@@ -379,5 +449,55 @@ onMounted(async () => {
   .summary-bar-content {
     max-width: 1000px;
   }
+}
+
+.paypal-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.paypal-modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+}
+
+.paypal-modal-content h3 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.close-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0.5rem;
+}
+
+.close-modal:hover {
+  color: #333;
+}
+
+#paypal-button-container {
+  width: 100%;
+  min-height: 150px;
 }
 </style>

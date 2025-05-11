@@ -5,7 +5,7 @@ import SearchPage from '@/components/SearchPage.vue'
 import RecommendationPage from '@/components/RecommendationPage.vue'
 import WishlistPage from '@/components/WishlistPage.vue'
 import CartPage from '@/components/CartPage.vue'
-
+import MyBooks from '@/components/MyBooks.vue'
 const routes = [
   { path: '/', component: LandingPage },
   { path: '/search', component: SearchPage, name: 'search' },
@@ -13,6 +13,7 @@ const routes = [
   { path: '/wishlist', component: WishlistPage, name: 'wishlist' },
   { path: '/cart', component: CartPage, name: 'cart' },
   { path: '/book/:id', component: BookDescription, name: 'BookDescription' },
+  { path: '/mybooks', component: MyBooks, name: 'mybooks' },
 ]
 
 const router = createRouter({

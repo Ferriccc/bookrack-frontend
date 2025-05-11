@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import BookGrid from '@/components/BookGrid.vue'
 import { API_ENDPOINTS, apiClient } from '@/config/api'
-import { useWishlistStore } from '@/stores/wishlistStore'
+import { useBoughtStore } from '@/stores/boughtStore'
 
 interface Book {
   id: string
@@ -15,15 +15,15 @@ interface Book {
 }
 
 const isLoading = ref(true)
-const wishlistBooks = ref<Book[]>([])
+const boughtBooks = ref<Book[]>([])
 const error = ref<string | null>(null)
-const wishlistStore = useWishlistStore()
+const boughtStore = useBoughtStore()
 const currentSort = ref<'title' | 'rating' | 'price'>('title')
 
 const sortedBooks = computed(() => {
-  if (!wishlistBooks.value.length) return []
+  if (!boughtBooks.value.length) return []
 
-  return [...wishlistBooks.value].sort((a, b) => {
+  return [...boughtBooks.value].sort((a, b) => {
     switch (currentSort.value) {
       case 'title':
         return a.title.localeCompare(b.title)
@@ -42,37 +42,37 @@ const handleSort = () => {
   // This method exists to handle the change event
 }
 
-async function fetchWishlistBooks() {
+async function fetchBoughtBooks() {
   isLoading.value = true
   error.value = null
-  wishlistBooks.value = []
-  wishlistStore.updateStore()
+  boughtBooks.value = []
+  boughtStore.updateStore()
 
   try {
-    const bookPromises = Array.from(wishlistStore.wishlistedBookIds).map((id) =>
+    const bookPromises = Array.from(boughtStore.boughtItems).map((id) =>
       apiClient.fetch(API_ENDPOINTS.FETCH_BOOK(id)),
     )
 
-    wishlistBooks.value = await Promise.all(bookPromises)
+    boughtBooks.value = await Promise.all(bookPromises)
   } catch (err) {
-    console.error('Error fetching wishlist books:', err)
-    error.value = 'Failed to load your wishlist. Please try again later.'
+    console.error('Error fetching bought books:', err)
+    error.value = 'Failed to load your bought books. Please try again later.'
   } finally {
     isLoading.value = false
   }
 }
 
 onMounted(() => {
-  fetchWishlistBooks()
+  fetchBoughtBooks()
 })
 </script>
 
 <template>
-  <div class="wishlist-page">
-    <div class="wishlist-container">
-      <div class="wishlist-header">
-        <h1>Your Wishlist</h1>
-        <p class="wishlist-subtitle">Books you want to read</p>
+  <div class="bought-page">
+    <div class="bought-container">
+      <div class="bought-header">
+        <h1>Your Bought</h1>
+        <p class="bought-subtitle">Books you have bought</p>
       </div>
 
       <div v-if="error" class="error-message">
@@ -80,13 +80,13 @@ onMounted(() => {
         {{ error }}
       </div>
 
-      <div v-else-if="!isLoading && wishlistBooks.length === 0" class="empty-state">
+      <div v-else-if="!isLoading && boughtBooks.length === 0" class="empty-state">
         <div class="empty-state-content">
           <div class="empty-state-icon">
             <i class="bi bi-heart"></i>
           </div>
-          <h2>Your wishlist is empty</h2>
-          <p>Start adding books to your wishlist</p>
+          <h2>Your bought is empty</h2>
+          <p>Start buying books</p>
           <router-link to="/search" class="explore-btn">
             Explore Books
             <i class="bi bi-arrow-right"></i>
@@ -95,9 +95,9 @@ onMounted(() => {
       </div>
 
       <template v-else>
-        <div class="wishlist-content">
-          <div class="wishlist-stats">
-            <span class="book-count">{{ wishlistBooks.length }} books</span>
+        <div class="bought-content">
+          <div class="bought-stats">
+            <span class="book-count">{{ boughtBooks.length }} books</span>
             <div class="sort-controls">
               <label for="sort-select">Sort by:</label>
               <select
@@ -121,24 +121,24 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.wishlist-page {
+.bought-page {
   min-height: 100vh;
   background: rgb(18, 18, 18);
   padding: 6rem 1rem 3rem;
 }
 
-.wishlist-container {
+.bought-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
 }
 
-.wishlist-header {
+.bought-header {
   text-align: center;
   margin-bottom: 3rem;
 }
 
-.wishlist-header h1 {
+.bought-header h1 {
   color: #ffffff;
   margin-bottom: 1rem;
   font-size: 2.5rem;
@@ -149,18 +149,18 @@ onMounted(() => {
   background-clip: text;
 }
 
-.wishlist-subtitle {
+.bought-subtitle {
   color: rgba(255, 255, 255, 0.7);
   font-size: 1.2rem;
 }
 
-.wishlist-content {
+.bought-content {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-.wishlist-stats {
+.bought-stats {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -286,21 +286,21 @@ onMounted(() => {
 }
 
 @media (min-width: 768px) {
-  .wishlist-page {
+  .bought-page {
     padding: 6rem 2rem 3rem;
   }
 
-  .wishlist-container {
+  .bought-container {
     padding: 0 2rem;
   }
 }
 
 @media (min-width: 1024px) {
-  .wishlist-page {
+  .bought-page {
     padding: 6rem 3rem 3rem;
   }
 
-  .wishlist-container {
+  .bought-container {
     padding: 0 3rem;
   }
 }

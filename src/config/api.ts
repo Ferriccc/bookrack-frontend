@@ -30,6 +30,9 @@ export const API_ENDPOINTS = {
     LOGIN_GOOGLE: `${API_CONFIG.BASE_URL}/api/login/google`,
     LOGOUT: `${API_CONFIG.BASE_URL}/api/logout`,
   },
+
+  INITIATE_CHECKOUT: `${API_CONFIG.BASE_URL}/api/initiate-checkout`,
+  COMPLETE_CHECKOUT: `${API_CONFIG.BASE_URL}/api/complete-checkout`,
 }
 
 // API Client with common configuration
