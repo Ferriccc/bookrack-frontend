@@ -153,8 +153,8 @@ watch(
             <button
               class="btn-secondary"
               :class="{ wishlisted: isWishlisted }"
-              @click="() => !isBought && book && wishlistStore.toggleWishlist(book.id)"
-              :disabled="isBought"
+              @click="() => !isBought && book?.id && wishlistStore.toggleWishlist(book.id)"
+              :disabled="isBought || !book"
             >
               <i class="bi" :class="isWishlisted ? 'bi-heart-fill' : 'bi-heart'"></i>
               {{ isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}

@@ -5,6 +5,15 @@ import { API_ENDPOINTS, apiClient } from '@/config/api'
 import { useCartStore } from '@/stores/cartStore'
 import { useBoughtStore } from '@/stores/boughtStore'
 
+// Add PayPal types
+declare global {
+  interface Window {
+    paypal?: {
+      Buttons: (config: any) => { render: (selector: string) => void }
+    }
+  }
+}
+
 // Add PayPal script loading
 const loadPayPalScript = () => {
   return new Promise((resolve, reject) => {
@@ -87,7 +96,7 @@ async function handleCheckout() {
     if (window.paypal) {
       window.paypal
         .Buttons({
-          createOrder: () => orderId.value,
+          createOrder: () => orderId.value || '',
           onApprove: async () => {
             try {
               // Complete checkout
@@ -116,7 +125,7 @@ async function handleCheckout() {
               error.value = 'Failed to complete checkout. Please try again later.'
             }
           },
-          onError: (err: any) => {
+          onError: (err: Error) => {
             console.error('PayPal Error:', err)
             error.value = 'Payment failed. Please try again.'
           },
